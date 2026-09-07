@@ -7,10 +7,6 @@
   * Connected Windows 11 endpoint running active agent monitoring.
   * Direct SSH access configured from local host to Ubuntu Manager.
 
-* **File Integrity Monitoring (FIM):** 
-  * Active `syscheck` module configured with `realtime="yes"` tracking critical system directories (`C:\Windows\System32`).
-  * Validated detection capabilities for remote file additions, modifications, and deletions initiated via RDP and SMB administrative shares.(iin development)
-
 * **Phishing Ingestion & Detection Pipeline:**
   * Custom Python fetcher (`/opt/gmail_fetcher.py`) reading unread messages from Gmail via IMAP and 2FA App Passwords.
   * JSON-formatted log pipeline outputting directly to `/var/log/phishing_detector.log`.
@@ -32,8 +28,8 @@ Instead of treating logon events uniformly, we map raw Windows Event IDs and con
 | **4625** | Multiple Failures | 5+ failures within 60 seconds (Potential Brute Force) | **High** | Level 10 |
 | **4625 / 4624** | Critical Sequence | Repeated failures followed by a successful logon | **Very Critical** | Level 14 – 15 |
 
-### Implementation Blueprint for This Phase
+**Implementation Blueprint for This Phase**
 
-* **Custom XML Rule Overrides:** Create custom rules in `/var/ossec/etc/rules/local_rules.xml` to parse `data.win.system.eventId` along with specific sub-fields like `data.win.eventdata.logonType`.
-* **Frequency & Correlation Engine:** Utilize `<frequency>` and `<if_matched_sid>` XML tags to automatically escalate alert levels when events repeat rapidly or follow suspicious patterns.
-* **Notification Routing:** Configure Wazuh's notification engine (`<reports>` / `<email_alerts>`) or Webhook integrations (Discord, Slack, or Telegram) to fire immediate alerts whenever an event exceeds **Level 10 (High)** or **Level 14+ (Very Critical)**.
+* **Custom XML Rule Overrides**: Create custom rules in `/var/ossec/etc/rules/local_rules.xml` to parse `data.win.system.eventId` along with specific sub-fields like `data.win.eventdata.logonType`.
+* **Frequency & Correlation Engine**: Utilize `<frequency>` and `<if_matched_sid>` XML tags to automatically escalate alert levels when events repeat rapidly or follow suspicious patterns.
+* **Notification Routing**: Configure Wazuh's notification engine (`<reports>` / `<email_alerts>`) or Webhook integrations (Discord, Slack, or Telegram) to fire immediate alerts whenever an event exceeds **Level 10 (High)** or **Level 14+ (Very Critical)**. (In process)
