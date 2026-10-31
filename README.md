@@ -88,4 +88,4 @@ The brute force will be about how the authentication has failed with respect to 
 
 
 ![alt text](SOC-Home-Lab-Images/Successfull%20Login%20via%20Wazuh.png)
-![alt text](SOC-Home-Lab-Images/SOC-Home-Lab-Images/Successfull%20Login%20via%20Wazuh.png)
+![alt text](SOC-Home-Lab-Images/Successfull%20Login%20via%20Wazuh.png)
