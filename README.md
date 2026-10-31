@@ -1,5 +1,7 @@
 # Windows Endpoint Monitoring & File Integrity Monitoring (Wazuh)
 
+Built a virtualized SOC home lab using Wazuh to monitor a Windows endpoint, investigate authentication failures, and detect unauthorized file modifications through centralized security monitoring.
+
 ## Current Active Lab Architecture
 
 **SIEM & Endpoint Infrastructure:** 
@@ -44,7 +46,7 @@ Wazuh SIEM • Windows Event Logs • File Integrity Monitoring (FIM) • Authen
 * **Custom XML Rule Overrides for Windows File Event Monitoring**: Create custom rules in `/var/ossec/etc/rules/local_rules.xml` to parse `data.win.system.eventId` along with specific sub-fields like `data.win.eventdata.logonType`.
 * **Notification Routing**: Configure Wazuh's notification engine (`<reports>` / `<email_alerts>`) or Webhook integrations (Discord, Slack, or Telegram) to fire immediate alerts whenever an event exceeds **Level 10 (High)** or **Level 14+ (Very Critical)**. (In process)
 
-### Implementation Phase Steps
+### Implementation Phase Steps For Windows Event Monitoring
 
 #### Wazuh Server Installation
 
@@ -86,6 +88,67 @@ The brute force will be about how the authentication has failed with respect to 
 
 * We can do the same for a successful login to the system. As we logged in before this time, we will search for the event ID with respect to the correct number
 
+![alt text](SOC-Home-Lab-Images/Successfull%20Login%20via%20Wazuh.png)
 
-![alt text](SOC-Home-Lab-Images/Successfull%20Login%20via%20Wazuh.png)
-![alt text](SOC-Home-Lab-Images/Successfull%20Login%20via%20Wazuh.png)
+
+### Windows File Event Monitoring 
+
+FIM is a security control that monitors selected files and directories for changes that may indicate unauthorized activity, malware infection, or configuration tampering.
+
+Wazuh's FIM module, called syscheck, can detect:
+- File creation and deletion.
+- File content modifications.
+- Changes to file permissions and other metadata.
+- Changes to Windows registry entries when registry monitoring is configured.
+
+**What does Wazuh monitor by default on Windows?**
+
+The default Windows agent configuration monitors selected files in the Windows directory, including:
+
+**%WINDIR%	:** regedit.exe, system.ini, win.ini
+**%WINDIR%\SysNative	:** Selected security-sensitive Windows executables
+
+FIM monitoring is configured through the **agent's ossec.conf or centralized agent configuration**
+
+We can configure either from Windows VM or from the server
+
+```
+C:\Program Files (x86)\ossec-agent\ossec.conf
+```
+We are taking this approach:
+```bash
+<syscheck>
+  <disabled>no</disabled>
+  <directories realtime="yes">
+    C:\Users\socadmin\Desktop\Download\Projects
+  </directories>
+</syscheck>
+```
+We have to restart the server so the new rules can be pushed to the agent to start the initial detection.
+
+**What is the methodology for Detection?**
+
+Wazuh's FIM module calculates and tracks file hashes as part of its integrity checks. It maintains a local database of monitored file information, including hashes and metadata.
+
+The process is broadly:
+1. Wazuh records the initial file state in its FIM database.
+2. A scheduled scan or filesystem event triggers a check.
+3. Wazuh compares the current file state with its previously recorded state.
+4. If a relevant difference is detected, Wazuh generates an event and sends it to the manager.
+5. The manager processes the event through its rules and may generate an alert in the dashboard.
+
+**How will FIM Alert Appear in Wazuh**
+
+| Rule ID |             Meaning             |
+|:-------:|:-------------------------------:|
+| 550     | File integrity checksum changed |
+| 553     | File deleted                    |
+| 554     | File added                      |
+
+
+## Learnings and Takeaways
+
+The hardest part was configuring the agent on the Windows machine, setting up the server, and ensuring the rules were working by cross-referencing them on the dashboard from time to time. This was a good introduction to Wazuh as an SIEM, and I am looking forward to gaining more practical hands-on experience from labs and real-world scenarios
+
+
+
