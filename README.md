@@ -1,22 +1,31 @@
-# SOC Lab Implementation: Active Stack & Enhanced Event Scoring
+# Windows Endpoint Monitoring & File Integrity Monitoring (Wazuh)
 
 ## Current Active Lab Architecture
 
-* **SIEM & Endpoint Infrastructure:** 
+**SIEM & Endpoint Infrastructure:** 
   * Ubuntu Server Manager acting as the central log collector and manager.
   * Connected Windows 11 endpoint running active agent monitoring.
-  * Direct SSH access configured from local host to Ubuntu Manager.
+  * Direct SSH access configured from local host to Ubuntu Manager to run locally
 
-* **Phishing Ingestion & Detection Pipeline:**
-  * Custom Python fetcher (`/opt/gmail_fetcher.py`) reading unread messages from Gmail via IMAP and 2FA App Passwords.
-  * JSON-formatted log pipeline outputting directly to `/var/log/phishing_detector.log`.
-  * Custom Wazuh rules (`100200` base JSON decoder and `100201` Level 12 critical alert) triggering on suspicious keywords in subject lines.
+## Skills & Tools
+
+Wazuh SIEM • Windows Event Logs • File Integrity Monitoring (FIM) • Authentication Event Analysis • Endpoint Monitoring • Virtualization
 
 ---
 
-## Targeted Upgrade: Dynamic Windows Event Rating & Alerting
+## Key Activities
 
-Instead of treating logon events uniformly, we map raw Windows Event IDs and context to a custom severity matrix (from Level 5 / Low up to Level 15 / Very Critical).
+* Deployed a Wazuh Manager on a virtual machine and integrated a Wazuh Agent on a Windows endpoint.
+
+* Configured and validated agent connectivity to establish centralized endpoint log collection.
+
+* Captured and analyzed failed Windows authentication events to investigate unsuccessful login attempts.
+
+* Implemented File Integrity Monitoring (FIM) on a designated project directory to detect file changes and monitor endpoint activity.
+
+* Reviewed generated security alerts and endpoint telemetry through the Wazuh dashboard.
+
+* Instead of treating logon events uniformly, we map raw Windows Event IDs and context to a custom severity matrix (from Level 5 / Low up to Level 15 / Very Critical).
 
 ### Criticality Rating Matrix
 
@@ -28,7 +37,8 @@ Instead of treating logon events uniformly, we map raw Windows Event IDs and con
 | **4625** | Multiple Failures | 5+ failures within 60 seconds (Potential Brute Force) | **High** | Level 10 |
 | **4625 / 4624** | Critical Sequence | Repeated failures followed by a successful logon | **Very Critical** | Level 14 – 15 |
 
-**Implementation Blueprint for This Phase**
+
+### Implementation Blueprint for This Phase
 
 * **Custom XML Rule Overrides**: Create custom rules in `/var/ossec/etc/rules/local_rules.xml` to parse `data.win.system.eventId` along with specific sub-fields like `data.win.eventdata.logonType`.
 * **Frequency & Correlation Engine**: Utilize `<frequency>` and `<if_matched_sid>` XML tags to automatically escalate alert levels when events repeat rapidly or follow suspicious patterns.
